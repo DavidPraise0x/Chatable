@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-purple: #af52de;  /* Apple iOS Premium Purple */
+  --color-brand-cyan: #5ac8fa;    /* Apple iOS Premium Cyan */
+  --color-brand-amber: #ffcc00;   /* Apple iOS Premium Gold */
+  --color-brand-rose: #ff2d55;    /* Apple iOS Premium Pink/Red */
+  --color-bg-dark: #020205;       /* iOS Dark Mode Canvas */
+  --color-surface-dark: rgba(22, 22, 28, 0.45);  /* iOS Frosted blur backing */
+  --color-surface-card: rgba(28, 28, 36, 0.55);  /* Sleek cards backing */
+  --color-border-dark: rgba(255, 255, 255, 0.08); /* Sleek thin iOS borders */
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-dark);
+    color: #f3f4f6;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* iOS Frosted Glassmorphic Panels */
+.glass-panel {
+  background: rgba(20, 20, 25, 0.45);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(25, 25, 32, 0.55);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.7), 0 0 24px 0 rgba(90, 200, 250, 0.1);
+  transform: translateY(-3px) scale(1.008);
+}
+
+/* iOS Aurora Background Bubbles */
+@keyframes float-bubble-slow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(80px, -100px) scale(1.3) rotate(120deg);
+  }
+  66% {
+    transform: translate(-70px, 70px) scale(0.8) rotate(240deg);
+  }
+}
+
+.floating-bubble-1 {
+  position: absolute;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(175, 82, 222, 0.24) 0%, transparent 70%);
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-bubble-slow 30s ease-in-out infinite;
+}
+
+.floating-bubble-2 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(90, 200, 250, 0.18) 0%, transparent 70%);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-bubble-slow 35s ease-in-out infinite;
+  animation-delay: -7s;
+}
+
+.floating-bubble-3 {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 204, 0, 0.1) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-bubble-slow 25s ease-in-out infinite;
+  animation-delay: -14s;
+}
+
+.floating-bubble-4 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 45, 85, 0.18) 0%, transparent 70%);
+  filter: blur(85px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-bubble-slow 32s ease-in-out infinite;
+  animation-delay: -21s;
+}
+
+/* Wavy Morphing User Card */
+@keyframes blob-morph {
+  0%, 100% {
+    border-radius: 24px 8px 32px 12px / 12px 32px 8px 24px;
+  }
+  33% {
+    border-radius: 12px 30px 18px 35px / 25px 15px 30px 20px;
+  }
+  66% {
+    border-radius: 35px 15px 25px 12px / 15px 28px 12px 30px;
+  }
+}
+
+.squiggly-profile {
+  animation: blob-morph 10s ease-in-out infinite;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Metallic Rainbow Fluid Button */
+@keyframes metallic-glow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.btn-metallic {
+  background: linear-gradient(135deg, #ff007f, #7f00ff, #00f0ff, #ffbc00, #ff007f) !important;
+  background-size: 300% 300% !important;
+  animation: metallic-glow 8s linear infinite !important;
+  box-shadow: 0 4px 24px rgba(127, 0, 255, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  color: #ffffff !important;
+}
+.btn-metallic:hover {
+  transform: scale(1.03) translateY(-2px) !important;
+  box-shadow: 0 8px 32px rgba(127, 0, 255, 0.55) !important;
+}
+.btn-metallic:active {
+  transform: scale(0.97) translateY(0) !important;
+}
+
+/* iOS Sleek Button */
+.btn-playful {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-playful:hover {
+  transform: scale(1.025) translateY(-1px);
+  box-shadow: 0 8px 24px rgba(175, 82, 222, 0.3);
+}
+.btn-playful:active {
+  transform: scale(0.975);
+}
+
+/* iOS-style Selected Sidebar Item */
+.active-tab-nav {
+  background: rgba(90, 200, 250, 0.12) !important;
+  color: #ffffff !important;
+  border-left: 4px solid var(--color-brand-cyan) !important;
+  box-shadow: inset 0 0 10px rgba(90, 200, 250, 0.05) !important;
+}
+
+.glass-input {
+  background: rgba(10, 10, 15, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-input:focus {
+  border-color: rgba(90, 200, 250, 0.5);
+  box-shadow: 0 0 16px rgba(90, 200, 250, 0.2);
+  outline: none;
+}
+
+/* Confetti Falling Animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-brand-cyan);
+  top: -20px;
+  z-index: 99;
+  animation: confetti-fall 3s linear forwards;
+}
+
+.confetti-piece:nth-child(2n) { background-color: var(--color-brand-purple); }
+.confetti-piece:nth-child(3n) { background-color: var(--color-brand-amber); }
+.confetti-piece:nth-child(4n) { background-color: var(--color-brand-rose); }
+
+/* Bubbly click animation */
+@keyframes scale-up {
+  0% {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-up {
+  animation: scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Shimmer loading gradient */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(20,20,25,0.3) 25%, rgba(175,82,222,0.15) 50%, rgba(20,20,25,0.3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Wave form audio pulse */
+@keyframes wave-pulse {
+  0%, 100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.voice-bar {
+  animation: wave-pulse 1.2s ease-in-out infinite;
+}
+.voice-bar:nth-child(2) { animation-delay: 0.15s; }
+.voice-bar:nth-child(3) { animation-delay: 0.3s; }
+.voice-bar:nth-child(4) { animation-delay: 0.45s; }
+.voice-bar:nth-child(5) { animation-delay: 0.6s; }
+.voice-bar:nth-child(6) { animation-delay: 0.75s; }
