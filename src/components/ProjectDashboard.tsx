@@ -252,13 +252,13 @@ export const ProjectDashboard: React.FC = () => {
                 </div>
 
                 {/* Milestone details */}
-                <div className="flex-1 flex justify-between items-center bg-surface-dark/45 border border-border-dark/60 rounded-xl p-3.5 hover:border-gray-700 transition-colors">
+                <div className="flex-1 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center bg-surface-dark/45 border border-border-dark/60 rounded-xl p-3.5 hover:border-gray-700 transition-colors">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-semibold text-white">{m.name}</span>
                     <span className="text-[11px] text-gray-400 leading-relaxed">{m.desc}</span>
                   </div>
                   <span
-                    className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
                       m.status === 'completed'
                         ? 'bg-green-500/10 text-green-400'
                         : m.status === 'inprogress'

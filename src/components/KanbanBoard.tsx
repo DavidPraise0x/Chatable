@@ -100,7 +100,7 @@ export const KanbanBoard: React.FC = () => {
       </div>
 
       {/* Board Columns Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-[calc(100vh-200px)] min-h-[500px]">
+      <div className="flex overflow-x-auto gap-4 h-[calc(100vh-200px)] min-h-[500px] pb-4 lg:grid lg:grid-cols-4 lg:overflow-x-visible">
         {columns.map((col) => {
           const colTasks = tasks.filter((t) => t.status === col.id);
 
@@ -109,7 +109,7 @@ export const KanbanBoard: React.FC = () => {
               key={col.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, col.id)}
-              className="flex flex-col gap-4 bg-surface-dark/30 border border-border-dark/60 rounded-2xl p-4 h-full"
+              className="flex flex-col gap-4 bg-surface-dark/30 border border-border-dark/60 rounded-2xl p-4 h-full shrink-0 w-[280px] sm:w-[320px] lg:w-auto lg:shrink"
             >
               {/* Column header */}
               <div className="flex items-center justify-between pb-2 border-b border-border-dark">

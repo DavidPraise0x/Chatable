@@ -16,7 +16,6 @@ import {
   ClipboardList,
   Shield,
   ShieldAlert,
-  ArrowRightLeft,
   Settings,
   CreditCard,
   Users,
@@ -78,6 +77,32 @@ const AppContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'brief' | 'chat' | 'kanban' | 'reputation' | 'payments' | 'matchmaker' | 'admin'>('dashboard');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [tempApiKey, setTempApiKey] = useState(geminiApiKey || '');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Theme state initialization
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('chatable_theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      return 'light';
+    } else {
+      document.documentElement.classList.remove('light');
+      return 'dark';
+    }
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('chatable_theme', next);
+      if (next === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+      return next;
+    });
+  };
 
   // Navigation Items
   const navItems = [
@@ -91,13 +116,11 @@ const AppContent: React.FC = () => {
     { id: 'admin' as const, label: 'Admin Control', icon: Shield, role: ['admin'] },
   ];
 
-  // Filter tabs by active user role permission safely (guarded against null currentUser)
+  // Filter tabs by active user role permission safely
   const filteredNavItems = currentUser
     ? navItems.filter((item) => item.role.includes(currentUser.role))
     : [];
 
-  // If a tab is active but not allowed due to role switch, fallback to dashboard
-  // Declared at the top level to strictly satisfy the Rules of Hooks
   React.useEffect(() => {
     if (!currentUser) return;
     const activeNavIds = filteredNavItems.map(item => item.id);
@@ -183,8 +206,8 @@ const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* SIDEBAR NAVIGATION */}
-      <aside className="w-64 border-r border-border-dark bg-surface-dark/70 flex flex-col justify-between p-5 shrink-0 z-10">
+      {/* SIDEBAR NAVIGATION (Desktop) */}
+      <aside className="hidden lg:flex w-64 border-r border-border-dark bg-surface-dark/70 flex-col justify-between p-5 shrink-0 z-10">
         <div className="flex flex-col gap-6">
           {/* Brand Logo */}
           <div className="flex items-center gap-2.5 px-2 z-10">
@@ -230,7 +253,7 @@ const AppContent: React.FC = () => {
             />
             <div className="flex flex-col overflow-hidden">
               <span className="text-xs font-bold text-white truncate">{currentUser.fullName}</span>
-              <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">{currentUser.role}</span>
+              <span className="text-[9px] text-gray-505 font-bold uppercase tracking-wider mt-0.5">{currentUser.role}</span>
             </div>
           </div>
 
@@ -244,40 +267,139 @@ const AppContent: React.FC = () => {
         </div>
       </aside>
 
+      {/* MOBILE MENU DRAWER OVERLAY */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <aside className="relative w-64 h-full border-r border-border-dark bg-bg-dark flex flex-col justify-between p-5 z-50">
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              className="absolute top-5 right-5 text-gray-405 hover:text-white p-1"
+            >
+              <X size={18} />
+            </button>
+            
+            <div className="flex flex-col gap-6">
+              {/* Brand Logo */}
+              <div className="flex items-center gap-2.5 px-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-cyan flex items-center justify-center font-black text-sm text-white shadow-md shadow-brand-purple/35 animate-bounce">
+                  💬
+                </div>
+                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-brand-cyan to-brand-purple bg-clip-text text-transparent">
+                  Chatable
+                </span>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex flex-col gap-1.5">
+                {filteredNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+                        isActive
+                          ? 'active-tab-nav'
+                          : 'text-gray-400 hover:text-white hover:bg-surface-card/65'
+                      }`}
+                    >
+                      <Icon size={16} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* User Card info */}
+            <div className="flex flex-col gap-2">
+              <div className="glass-panel squiggly-profile p-3.5 border border-border-dark flex items-center gap-3">
+                <img
+                  src={currentUser.profileImage}
+                  alt={currentUser.fullName}
+                  className="w-9 h-9 rounded-full object-cover border border-border-dark"
+                />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-xs font-bold text-white truncate">{currentUser.fullName}</span>
+                  <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">{currentUser.role}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => signOutUser()}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl text-xs font-bold transition-all cursor-pointer w-full text-left"
+              >
+                <LogOut size={14} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* MAIN VIEW AREA */}
       <main className="flex-1 flex flex-col min-w-0 bg-bg-dark">
         {/* TOP HEADER */}
-        <header className="h-[79px] border-b border-border-dark bg-surface-dark/45 px-6 flex items-center justify-between shrink-0">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] text-brand-purple font-semibold uppercase tracking-wider">Active Workspace</span>
-            <h2 className="text-sm font-bold text-white">
-              {activeProject ? activeProject.title : 'No Project Selected'}
-            </h2>
+        <header className="h-[79px] border-b border-border-dark bg-surface-dark/45 px-4 sm:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 bg-surface-card border border-border-dark text-gray-400 hover:text-white rounded-xl transition-all cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] text-brand-purple font-semibold uppercase tracking-wider">Active Workspace</span>
+              <h2 className="text-xs sm:text-sm font-bold text-white truncate max-w-[120px] sm:max-w-xs">
+                {activeProject ? activeProject.title : 'No Project Selected'}
+              </h2>
+            </div>
           </div>
 
-          {/* Settings & Sandbox Role Switcher controls */}
-          <div className="flex items-center gap-3">
+          {/* Settings & Sandbox Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 bg-surface-card border border-border-dark text-gray-400 hover:text-white hover:border-gray-500 rounded-xl transition-all cursor-pointer"
+              title={theme === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
+            >
+              {theme === 'dark' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 sm:w-[15px] sm:h-[15px]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 sm:w-[15px] sm:h-[15px]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M5.25 12h2.25m9 0h2.25m-10.5 5.25 1.5-1.5m7.5-7.5 1.5-1.5M5.25 5.25l1.5 1.5m7.5 7.5 1.5 1.5M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z" />
+                </svg>
+              )}
+            </button>
+
             {/* Gear Settings Button */}
             <button
               onClick={() => { setTempApiKey(geminiApiKey || ''); setIsSettingsOpen(true); }}
-              className="p-2.5 bg-surface-card border border-border-dark text-gray-400 hover:text-white hover:border-gray-500 rounded-xl transition-all cursor-pointer"
+              className="p-2 sm:p-2.5 bg-surface-card border border-border-dark text-gray-400 hover:text-white hover:border-gray-500 rounded-xl transition-all cursor-pointer"
               title="API Key Configuration"
             >
-              <Settings size={15} />
+              <Settings size={14} className="sm:w-[15px] sm:h-[15px]" />
             </button>
 
-            {/* Sandbox switcher (only for fast testing, matches active session) */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-400 bg-surface-card border border-border-dark px-3 py-2 rounded-xl">
-              <ArrowRightLeft size={13} className="text-brand-purple" />
-              <span className="font-semibold">Developer Switch:</span>
+            {/* Sandbox switcher */}
+            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-450 bg-surface-card border border-border-dark px-2 sm:px-3 py-2 rounded-xl">
+              <span className="hidden sm:inline font-semibold">Dev Switch:</span>
               <select
                 value={currentUser.role}
                 onChange={(e) => switchRole(e.target.value as 'client' | 'freelancer' | 'admin')}
-                className="bg-transparent text-white font-bold border-none outline-none pl-1 pr-4 cursor-pointer"
+                className="bg-transparent text-white font-bold border-none outline-none pl-0.5 cursor-pointer max-w-[70px] sm:max-w-none text-ellipsis"
               >
-                <option value="client" className="bg-surface-card text-white">Client (Sarah Chen)</option>
-                <option value="freelancer" className="bg-surface-card text-white">Freelancer (Alex Rivera)</option>
-                <option value="admin" className="bg-surface-card text-white">System Admin</option>
+                <option value="client" className="bg-surface-card text-white">Client</option>
+                <option value="freelancer" className="bg-surface-card text-white">Freelancer</option>
+                <option value="admin" className="bg-surface-card text-white">Admin</option>
               </select>
             </div>
           </div>

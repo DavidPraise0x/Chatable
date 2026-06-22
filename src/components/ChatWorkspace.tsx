@@ -120,8 +120,8 @@ export const ChatWorkspace: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-80px)] border-t border-border-dark">
-      {/* Left Column: Context Card / Info */}
-      <div className="lg:col-span-3 border-r border-border-dark bg-surface-dark/45 p-6 flex flex-col gap-6">
+      {/* Left Column: Context Card / Info (hidden on mobile, visible on desktop) */}
+      <div className="hidden lg:flex lg:col-span-3 border-r border-border-dark bg-surface-dark/45 p-6 flex-col gap-6">
         <div>
           <h2 className="text-lg font-bold text-white">Project Workspace</h2>
           <p className="text-xs text-gray-400">{activeProject?.title || 'No Active Project'}</p>
@@ -175,7 +175,7 @@ export const ChatWorkspace: React.FC = () => {
       </div>
 
       {/* Right Column: Chat Feed & Controls */}
-      <div className="lg:col-span-9 flex flex-col h-full bg-bg-dark">
+      <div className="col-span-12 lg:col-span-9 flex flex-col h-full bg-bg-dark">
         {/* Messages list */}
         <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
           {chats.map((chat) => {

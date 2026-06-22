@@ -130,9 +130,9 @@ export const PaymentsWorkspace: React.FC = () => {
             {invoices.map((inv) => (
               <div
                 key={inv.id}
-                className="bg-surface-dark/45 border border-border-dark/65 p-4 rounded-xl flex items-center justify-between hover:border-gray-700 transition-colors"
+                className="bg-surface-dark/45 border border-border-dark/65 p-4 rounded-xl flex flex-col sm:flex-row gap-4 sm:items-center justify-between hover:border-gray-700 transition-colors"
               >
-                <div className="flex flex-col gap-1.5 max-w-[65%]">
+                <div className="flex flex-col gap-1.5 max-w-full sm:max-w-[65%]">
                   <h4 className="text-xs font-bold text-white leading-relaxed">{inv.title}</h4>
                   <div className="flex items-center gap-4 text-[10px] text-gray-500">
                     <span className="flex items-center gap-1 font-mono">
@@ -142,7 +142,7 @@ export const PaymentsWorkspace: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border-dark/45">
                   <div className="flex flex-col items-end gap-1.5">
                     <span className="text-sm font-black font-mono text-white">${inv.amount}</span>
                     <span

@@ -69,10 +69,10 @@ export const AuthScreen: React.FC = () => {
       <div className="floating-bubble-4 bottom-1/4 right-1/3" />
 
       {/* Main card box container */}
-      <div className="w-full max-w-[900px] min-h-[580px] grid grid-cols-1 md:grid-cols-12 gap-0 rounded-[2.5rem] overflow-hidden z-10 p-4 m-4 relative animate-scale-up glass-panel glass-panel-hover">
+      <div className="w-full max-w-[900px] min-h-0 md:min-h-[580px] grid grid-cols-1 md:grid-cols-12 gap-0 rounded-[2.5rem] overflow-hidden z-10 p-4 m-4 relative animate-scale-up glass-panel glass-panel-hover">
         
         {/* Left column: Welcome Vibe banner (Frosted Glass sheet glowing from behind) */}
-        <div className="md:col-span-5 bg-white/[0.02] backdrop-blur-xl p-8 text-white rounded-[2rem] flex flex-col justify-between relative overflow-hidden border border-white/10 shadow-lg shadow-black/40">
+        <div className="hidden md:flex md:col-span-5 bg-white/[0.02] backdrop-blur-xl p-8 text-white rounded-[2rem] flex flex-col justify-between relative overflow-hidden border border-white/10 shadow-lg shadow-black/40">
           {/* Subtle inside glowing spheres for high-end refraction */}
           <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-brand-purple/20 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-brand-cyan/20 blur-3xl pointer-events-none" />
@@ -117,7 +117,17 @@ export const AuthScreen: React.FC = () => {
         </div>
 
         {/* Right column: Interactive form */}
-        <div className="md:col-span-7 p-6 md:p-8 flex flex-col justify-center bg-transparent z-10">
+        <div className="col-span-12 md:col-span-7 p-6 md:p-8 flex flex-col justify-center bg-transparent z-10">
+          {/* Mobile Logo Header */}
+          <div className="flex items-center gap-2 mb-6 md:hidden">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-cyan flex items-center justify-center font-black text-xs text-white">
+              💬
+            </div>
+            <span className="font-extrabold text-sm tracking-tight text-white" style={{ fontFamily: 'Righteous' }}>
+              Chatable
+            </span>
+          </div>
+
           {/* Header titles toggle switcher */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex flex-col gap-1">

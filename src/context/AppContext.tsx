@@ -909,6 +909,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const triggerAutoReply = async (userMsg: string, senderId: string, receiverId: string) => {
+    const receiver = users.find(u => u.id === receiverId);
+    const sender = users.find(u => u.id === senderId);
+    if (!receiver || !sender || !activeProject) return;
+
+    setTimeout(async () => {
+      let replyText = "";
+      
+      if (geminiApiKey) {
+        try {
+          const systemContext = `You are ${receiver.fullName}, a ${receiver.role} collaborating on the project "${activeProject.title}".
+Underlying Project Scope: ${activeProject.description}.
+Your persona/profile bio: ${receiver.bio}.
+You are conversing with the ${sender.role} ${sender.fullName}.
+Write a natural, helpful, direct chat message response (1-2 sentences) reacting to their message: "${userMsg}".
+Do not include any greeting prefix or tag. Reply directly as the person.`;
+          
+          replyText = await callGemini(systemContext);
+        } catch (err) {
+          console.error("Auto-responder Gemini Error:", err);
+          replyText = `Thanks for the details! Let me check this right away.`;
+        }
+      } else {
+        const msg = userMsg.toLowerCase();
+        if (msg.includes('invoice') || msg.includes('payment') || msg.includes('pay') || msg.includes('escrow')) {
+          replyText = receiver.role === 'client' 
+            ? "I've reviewed the deliverables and released the milestone payment for you! Let me know if the funds are visible."
+            : "I've created the milestone invoice for this stage. Please let me know once the escrow is funded so I can proceed.";
+        } else if (msg.includes('brief') || msg.includes('translate') || msg.includes('requirement')) {
+          replyText = receiver.role === 'client'
+            ? "The translated brief looks very precise. Let's base our task list and milestones on these guidelines."
+            : "I've analyzed the translated guidelines. I'll break this down into actionable subtasks on our Kanban board now.";
+        } else if (msg.includes('task') || msg.includes('todo') || msg.includes('kanban') || msg.includes('progress')) {
+          replyText = "Great. I've updated the task cards on the Kanban board to reflect the current status.";
+        } else {
+          replyText = receiver.role === 'client'
+            ? `Sounds good! Let's align on these deliverables. Let me know if you need any resources from my end.`
+            : `Got it! I will start working on this immediately and post my progress here.`;
+        }
+      }
+
+      if (isSupabaseConfigured() && activeProject.id !== 'proj-lumina') {
+        await supabase.from('chats').insert({
+          sender_id: receiver.id,
+          receiver_id: sender.id,
+          project_id: activeProject.id,
+          message: replyText,
+          type: 'text'
+        });
+      } else {
+        const replyMsg: ChatMessage = {
+          id: `msg-${Date.now()}`,
+          senderId: receiver.id,
+          receiverId: sender.id,
+          projectId: activeProject.id,
+          message: replyText,
+          type: 'text',
+          timestamp: new Date().toISOString()
+        };
+        setChats(prev => [...prev, replyMsg]);
+      }
+    }, 2000);
+  };
+
   const sendChatMessage = async (
     message: string,
     type: 'text' | 'file' | 'audio' = 'text',
@@ -951,6 +1015,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         fileSize
       };
       setChats(prev => [...prev, newMessage]);
+    }
+
+    // Trigger AI collaborator reply simulation if talking to sandbox/mock counterparts
+    const isMockCounterpart = receiverId === 'user-freelancer' || 
+                              receiverId === 'user-client' || 
+                              receiverId.startsWith('mock-') ||
+                              receiverId.startsWith('f-');
+    if (isMockCounterpart) {
+      triggerAutoReply(message, currentUser.id, receiverId);
     }
   };
 
