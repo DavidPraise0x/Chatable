@@ -158,7 +158,7 @@ interface AppContextProps {
   flagMessage: (messageId: string) => void;
   dismissMessageFlag: (messageId: string) => void;
   deleteMessage: (messageId: string) => void;
-  createProject: (title: string, description: string, freelancerId: string, dueDate: string) => Promise<void>;
+  createProject: (title: string, description: string, freelancerId: string, dueDate: string) => Promise<{ error: any }>;
 }
 
 // --- Initial Mock Data ---
@@ -1384,7 +1384,7 @@ Rules:
     }
   };
 
-  const createProject = async (title: string, description: string, freelancerId: string, dueDate: string) => {
+  const createProject = async (title: string, description: string, freelancerId: string, dueDate: string): Promise<{ error: any }> => {
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('projects').insert({
@@ -1411,8 +1411,10 @@ Rules:
           };
           setProjects(prev => [newProj, ...prev]);
         }
-      } catch (err) {
+        return { error: null };
+      } catch (err: any) {
         console.error("Failed to create project in Supabase:", err);
+        return { error: err };
       }
     } else {
       const newProj: Project = {
@@ -1426,6 +1428,7 @@ Rules:
         createdAt: new Date().toISOString()
       };
       setProjects(prev => [newProj, ...prev]);
+      return { error: null };
     }
   };
 

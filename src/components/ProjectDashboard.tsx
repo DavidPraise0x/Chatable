@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { CheckCircle, Clock, FileText, Users, Paperclip, Calendar, Download, ArrowRight } from 'lucide-react';
 
 export const ProjectDashboard: React.FC = () => {
-  const { activeProject, tasks, files, users, uploadProjectFile, createProject, currentUser } = useApp();
+  const { activeProject, tasks, files, users, uploadProjectFile, createProject, currentUser, freelancersCatalog } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State for project creation form
@@ -12,16 +12,28 @@ export const ProjectDashboard: React.FC = () => {
   const [newFreelancerId, setNewFreelancerId] = useState('');
   const [newDueDate, setNewDueDate] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!activeProject) {
     const freelancers = users.filter(u => u.role === 'freelancer');
+    const selectedFreelancer = freelancers.find(f => f.id === newFreelancerId);
+    const catalogInfo = freelancersCatalog?.find(fc => fc.fullName.toLowerCase() === selectedFreelancer?.fullName?.toLowerCase() || fc.id === selectedFreelancer?.id);
 
     const handleCreateProject = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!newTitle.trim() || !newFreelancerId || !newDueDate) return;
       setIsCreating(true);
-      await createProject(newTitle.trim(), newDesc.trim(), newFreelancerId, newDueDate);
-      setIsCreating(false);
+      setErrorMsg(null);
+      try {
+        const { error } = await createProject(newTitle.trim(), newDesc.trim(), newFreelancerId, newDueDate);
+        if (error) {
+          setErrorMsg(error.message || "Failed to create project in Supabase database.");
+        }
+      } catch (err: any) {
+        setErrorMsg(err.message || "An unexpected error occurred.");
+      } finally {
+        setIsCreating(false);
+      }
     };
 
     return (
@@ -37,6 +49,12 @@ export const ProjectDashboard: React.FC = () => {
               Create a fresh workspace project to translate design briefs, assign tasks, track milestones, and manage payments.
             </p>
           </div>
+
+          {errorMsg && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-red-400 font-semibold z-10">
+              <span className="leading-relaxed">{errorMsg}</span>
+            </div>
+          )}
 
           {currentUser?.role === 'client' || currentUser?.role === 'admin' ? (
             <form onSubmit={handleCreateProject} className="flex flex-col gap-4 z-10">
@@ -73,12 +91,15 @@ export const ProjectDashboard: React.FC = () => {
                     className="w-full glass-input rounded-2xl px-3 py-3 text-xs text-white bg-bg-dark border border-white/10 outline-none"
                   >
                     <option value="" className="bg-bg-dark text-gray-450">Select collaborator</option>
-                    {freelancers.map(f => (
-                      <option key={f.id} value={f.id} className="bg-bg-dark text-white">
-                        {f.fullName}
-                      </option>
-                    ))}
-                    {/* Fallback mock option if no users are returned yet */}
+                    {freelancers.map(f => {
+                      const matched = freelancersCatalog?.find(fc => fc.fullName.toLowerCase() === f.fullName.toLowerCase() || fc.id === f.id);
+                      const titleLabel = matched ? ` - ${matched.title}` : '';
+                      return (
+                        <option key={f.id} value={f.id} className="bg-bg-dark text-white">
+                          {f.fullName}{titleLabel}
+                        </option>
+                      );
+                    })}
                     {freelancers.length === 0 && (
                       <option value="user-freelancer" className="bg-bg-dark text-white">Alex Rivera (Mock Freelancer)</option>
                     )}
@@ -96,6 +117,27 @@ export const ProjectDashboard: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {selectedFreelancer && (
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 leading-relaxed animate-scale-up flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white text-xs">{selectedFreelancer.fullName}</span>
+                    {catalogInfo && (
+                      <span className="text-[10px] font-bold text-brand-cyan font-mono">${catalogInfo.dayRate}/day</span>
+                    )}
+                  </div>
+                  <p className="text-gray-300 italic">{selectedFreelancer.bio || 'Welcome to Chatable!'}</p>
+                  {catalogInfo && (
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {catalogInfo.skills.map((s, i) => (
+                        <span key={i} className="text-[9px] font-extrabold px-2 py-0.5 bg-surface-dark border border-border-dark text-brand-purple rounded">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button
                 type="submit"
